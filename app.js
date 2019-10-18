@@ -27,15 +27,26 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
-mongoose.set("useCreateIndex", true);
+const options={
+    // useUnifiedTopology: true ,
+   useNewUrlParser: true
 
+};
+mongoose.connect('mongodb://localhost:27017/userDB',options );
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log("we're connected!");});
+mongoose.set('useCreateIndex', true);
 const userSchema = new mongoose.Schema ({
   email: String,
   password: String,
   googleId: String,
   secret: String
 });
+mongoose.set("useCreateIndex", true);
+
+
 
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
@@ -170,6 +181,14 @@ app.post("/login", function(req, res){
   });
 
 });
+process
+  .on('unhandledRejection', (reason, p) => {
+    console.error(reason, 'Unhandled Rejection at Promise', p);
+  })
+  .on('uncaughtException', err => {
+    console.error(err, 'Uncaught Exception thrown');
+    process.exit(1);
+  });
 
 
 
